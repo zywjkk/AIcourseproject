@@ -1,4 +1,4 @@
-﻿# 番茄病害识别系统 (Tomato Disease Recognition System)
+# 番茄病害识别系统 (Tomato Disease Recognition System)
 
 基于 PyTorch 的番茄叶片病害图像分类系统，作为"人工智能基础(A)"课程大作业实现。
 支持多种卷积神经网络架构、两阶段迁移学习策略、Grad-CAM 可视化解释，并附带 Gradio 交互式前端。
@@ -172,3 +172,58 @@ python -X utf8 summarize_experiments.py
 ---
 
 > 作者：郑喻文 | 学号：3250103102 | 人工智能基础(A) 课程大作业
+
+## 团队协作指引
+
+### 环境搭建
+
+`ash
+# 1. 克隆仓库
+git clone <仓库地址>
+cd 大作业
+
+# 2. 安装依赖
+pip install -r requirements.txt
+
+# 3. 下载数据集
+# 从 PlantVillage 下载番茄数据集，放到 tomato/ 目录下：
+#   tomato/train/  (训练集，10 个子目录)
+#   tomato/val/    (验证/测试集，10 个子目录)
+`
+
+### 训练与评估
+
+`powershell
+# 训练实验
+python -X utf8 train.py --preset resnet18_transfer_fc_then_layer4
+
+# 评估已有模型
+python -X utf8 evaluate.py --run-dir outputs/experiments/resnet18_transfer_fc_then_layer4
+
+# 启动 Web 界面
+python -X utf8 app.py --run-dir outputs/experiments/mobilenet_v3_transfer_fc_then_features_tail
+
+# 汇总对比所有实验
+python -X utf8 summarize_experiments.py
+`
+
+### Git 工作流
+
+- **不要直接 push 到 main 分支**。每人从 main 切出自己的 feature 分支开发
+- 分支命名：eat/你的功能名 或 ix/修复内容
+- 提交信息格式：类型: 简短说明（如 eat: 添加数据增强选项、ix: 修复混淆矩阵标签）
+- 开发完在 GitHub 上提 Pull Request，让组员 review 后合并
+- .gitignore 已配置，git add 前先 git status 确认不会误提交大文件
+- 数据集 	omato/ 和模型权重 *.pth **不要提交到 git**
+
+### 目录约定
+
+`
+大作业/
+├── src/              # 核心代码（模块化，不要改接口签名）
+├── outputs/          # 实验结果（共享，但 .pth 权重需各自训练）
+├── configs/          # 实验配置
+└── 网图测试用/         # 测试图片（用于 Gradio 演示）
+`
+
+如需新增实验，在 src/config.py 的 EXPERIMENT_PRESETS 中添加配置即可。
