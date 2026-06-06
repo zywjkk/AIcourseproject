@@ -1,0 +1,27 @@
+﻿# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Dataset (Public PlantVillage, ~180MB) ---
+tomato/
+
+# --- Model weights (Large .pth files, ~275MB total) ---
+**/best_model.pth
+**/model_weights.pth
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+
+# --- Course assignment doc (personal) ---
+ZT-人工智能基础-大作业(1).docx
+
+# --- IDE ---
+.vscode/
+.idea/
+
+# --- Temp files ---
+outputs/*.log
+node_modules/
+package-lock.json

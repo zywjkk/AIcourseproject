@@ -1,0 +1,19 @@
+{
+  "data_dir": "./tomato",
+  "output_dir": "./outputs/experiments",
+  "experiment_name": "resnet18_scratch",
+  "seed": 42,
+  "image_size": 224,
+  "batch_size": 32,
+  "num_workers": 0,
+  "architecture": "resnet18",
+  "pretrained": false,
+  "freeze_strategy": "none",
+  "stage1_epochs": 0,
+  "stage2_epochs": 10,
+  "stage1_lr": 0.001,
+  "stage2_lr": 0.001,
+  "weight_decay": 0.0,
+  "val_split_from_val_dir": 0.5,
+  "gradcam": true
+}

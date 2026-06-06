@@ -1,0 +1,8 @@
+{
+  "top1_accuracy": 0.89,
+  "macro_f1": 0.8885486142449535,
+  "weighted_f1": 0.8899728475770415,
+  "inference_seconds_per_image": 0.000738895000017692,
+  "total_parameters": 11181642,
+  "trainable_parameters_final": 5130
+}
