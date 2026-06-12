@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄病害识别检测系统 · Swiss Web Deck</title>
+<style>
+:root{
+  --paper:#fafaf8;
+  --ink:#0a0a0a;
+  --grey-1:#f0f0ee;
+  --grey-2:#d4d4d2;
+  --grey-3:#737373;
+  --accent:#002FA7;
+  --accent-on:#ffffff;
+  --sans:"Inter","Helvetica Neue","Helvetica","Arial","Noto Sans SC","Microsoft YaHei UI",sans-serif;
+  --mono:"JetBrains Mono","IBM Plex Mono","Cascadia Code","Consolas",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--sans);font-feature-settings:"tnum";letter-spacing:0}
+body::before{content:"";position:fixed;inset:0;z-index:0;opacity:.12;background-image:linear-gradient(var(--grey-2) 1px,transparent 1px),linear-gradient(90deg,var(--grey-2) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+#deck{position:fixed;inset:0;z-index:1;display:flex;width:1000vw;height:100vh;transition:transform .72s cubic-bezier(.77,0,.175,1)}
+.slide{position:relative;flex:0 0 100vw;width:100vw;height:100vh;padding:5.2vh 5vw 6.8vh;background:rgba(250,250,248,.96);overflow:hidden}
+.chrome{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--grey-2);padding-bottom:16px;font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey-3)}
+.page{color:var(--accent);font-size:16px}
+.body{height:calc(100vh - 15vh);display:grid;gap:32px;padding-top:38px}
+.kicker{font:600 13px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+h1,h2,h3,p{margin:0}
+.hero-title{font-weight:200;font-size:min(8.8vw,15.5vh);line-height:.94;letter-spacing:-.035em;max-width:78vw}
+.title{font-weight:250;font-size:min(5.4vw,9.4vh);line-height:1.02;letter-spacing:-.026em}
+.subtitle{font-size:clamp(22px,1.72vw,34px);font-weight:400;line-height:1.42;color:var(--grey-3);max-width:78vw}
+.lead{font-size:clamp(22px,1.65vw,32px);line-height:1.5;color:#222;max-width:72vw}
+.mono{font-family:var(--mono)}
+.accent{color:var(--accent)}
+.grid-2{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:var(--grey-1);border-top:3px solid var(--accent);padding:24px;min-height:150px}
+.card.dark{background:var(--ink);color:var(--paper);border-top-color:var(--accent)}
+.num{font:300 min(8vw,13vh)/.9 var(--mono);letter-spacing:-.06em;color:var(--accent)}
+.num.small{font-size:min(4.8vw,8vh)}
+.label{font:600 14px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--grey-3);margin-top:16px}
+.statement{font-size:min(4.4vw,7.4vh);font-weight:260;line-height:1.12;letter-spacing:-.02em}
+.list{display:grid;gap:18px;margin-top:8px}
+.li{display:grid;grid-template-columns:16px 1fr;gap:18px;font-size:clamp(19px,1.35vw,26px);line-height:1.42}
+.li::before{content:"";width:10px;height:10px;background:var(--accent);margin-top:.55em}
+.table{display:grid;border-top:4px solid var(--ink);font-size:clamp(15px,1vw,20px)}
+.row{display:grid;grid-template-columns:1.7fr 1fr 1.55fr .8fr .85fr;border-bottom:1px solid var(--grey-2);min-height:54px;align-items:center}
+.row>div{padding:10px 12px}
+.row.head{background:var(--ink);color:var(--paper);font-weight:700}
+.row.best{background:#e9edf8}
+.bars{display:grid;gap:18px}
+.bar{display:grid;grid-template-columns:180px 1fr 72px;align-items:center;gap:20px;font-size:19px}
+.track{height:18px;background:var(--grey-2)}
+.fill{height:18px;background:var(--accent)}
+.proof-img{width:100%;height:100%;object-fit:contain;background:#fff}
+.image-frame{height:48vh;background:#fff;display:flex;align-items:center;justify-content:center;border:1px solid var(--grey-2)}
+.image-frame.tall{height:56vh}
+.split-images{display:grid;grid-template-columns:1.08fr .92fr;gap:28px}
+.footer-note{align-self:end;border-top:1px solid var(--grey-2);padding-top:18px;font-size:clamp(18px,1.25vw,24px);font-weight:600;line-height:1.4}
+.accent-block{background:var(--accent);color:var(--accent-on);padding:40px;min-height:52vh;display:flex;flex-direction:column;justify-content:space-between}
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:center}
+.step{border:1px solid var(--grey-2);background:var(--grey-1);min-height:142px;padding:18px;display:flex;flex-direction:column;justify-content:space-between}
+.step .nb{font:600 13px/1 var(--mono);color:var(--accent)}
+.step .txt{font-size:19px;line-height:1.26;font-weight:500}
+.nav{position:fixed;z-index:5;left:50%;bottom:2.2vh;transform:translateX(-50%);display:flex;gap:10px}
+.dot{width:26px;height:3px;background:#b7b7b4;transition:.25s}
+.dot.active{background:var(--accent);width:48px}
+.hint{position:fixed;right:28px;bottom:18px;z-index:5;font:600 12px/1 var(--mono);letter-spacing:.12em;color:var(--grey-3);text-transform:uppercase}
+@media(max-width:900px){.grid-2,.split-images{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}.body{overflow:auto}.slide{overflow:auto}.nav,.hint{display:none}}
+</style>
+</head>
+<body>
+<main id="deck">
+  <section class="slide">
+    <div class="chrome"><span>AI Foundation (A) / Topic 4</span><span class="page">01</span></div>
+    <div class="body" style="grid-template-rows:1fr auto">
+      <div>
+        <div class="kicker">Tomato Disease Recognition</div>
+        <h1 class="hero-title">番茄病害识别<br><span class="accent">检测系统</span></h1>
+        <p class="subtitle" style="margin-top:32px">基于 CNN 与迁移学习的 10 类番茄叶片病害自动分类，从数据预处理、训练评估到 Web Demo 的完整计算机视觉工程闭环。</p>
+      </div>
+      <div class="grid-4">
+        <div class="card"><div class="num small">96.6%</div><div class="label">Top-1 Accuracy</div></div>
+        <div class="card"><div class="num small">10</div><div class="label">Tomato Classes</div></div>
+        <div class="card"><div class="num small">6</div><div class="label">Experiments</div></div>
+        <div class="card"><div class="num small">Top-3</div><div class="label">Gradio Output</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Requirement Alignment</span><span class="page">02</span></div>
+    <div class="body grid-2">
+      <div>
+        <div class="kicker">What must be proven</div>
+        <h2 class="title">不是“跑出结果”，而是证明流程可信</h2>
+        <p class="lead" style="margin-top:30px">课程验收点被转化为可检查证据：源码负责可复现，实验结果负责可量化，PPT 与演示负责可展示。</p>
+      </div>
+      <div class="list">
+        <div class="li">完整训练脚本：Dataset / DataLoader / 模型 / 训练循环 / 验证评估</div>
+        <div class="li">测试集 Top-1 Accuracy ≥ 90%，最佳模型达到 96.6%</div>
+        <div class="li">From Scratch、fc_only、fc_then_layer4 三类冻结策略对比</div>
+        <div class="li">Loss/Accuracy、混淆矩阵、分类报告、Grad-CAM、Gradio Demo</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Data / Preprocessing</span><span class="page">03</span></div>
+    <div class="body">
+      <div>
+        <div class="kicker">PlantVillage Tomato</div>
+        <h2 class="title">数据集保持清晰，预处理保持一致</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card"><div class="num small">10000</div><div class="label">Train Images</div></div>
+        <div class="card"><div class="num small">500</div><div class="label">Validation</div></div>
+        <div class="card"><div class="num small">500</div><div class="label">Test</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="list">
+          <div class="li">训练阶段：Resize 224×224、随机水平翻转、±15° 随机旋转</div>
+          <div class="li">验证/测试阶段：仅确定性预处理，避免评估扰动</div>
+          <div class="li">固定随机种子，保存类别顺序，避免标签错位</div>
+        </div>
+        <div class="accent-block">
+          <div class="kicker" style="color:var(--accent-on)">Transform Pipeline</div>
+          <div class="statement">Resize → Augment → Normalize → DataLoader</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>CNN Shape</span><span class="page">04</span></div>
+    <div class="body">
+      <div>
+        <div class="kicker">Architecture logic</div>
+        <h2 class="title">CNN 把叶片纹理逐层抽象为病害类别</h2>
+      </div>
+      <div class="pipeline">
+        <div class="step"><span class="nb">01 INPUT</span><span class="txt">[B,3,224,224]</span></div>
+        <div class="step"><span class="nb">02 CONV</span><span class="txt">[B,64,112,112]</span></div>
+        <div class="step"><span class="nb">03 POOL</span><span class="txt">[B,64,56,56]</span></div>
+        <div class="step"><span class="nb">04 BLOCKS</span><span class="txt">[B,512,7,7]</span></div>
+        <div class="step"><span class="nb">05 LINEAR</span><span class="txt">[B,10]</span></div>
+      </div>
+      <div class="footer-note">Conv2D 提取斑点、边缘和颜色纹理；MaxPool 降低空间分辨率；Linear 输出 10 类概率，满足报告对 Tensor Shape 变换的说明要求。</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Transfer Learning</span><span class="page">05</span></div>
+    <div class="body grid-2">
+      <div class="accent-block">
+        <div>
+          <div class="kicker" style="color:var(--accent-on)">Freezing strategy</div>
+          <div class="statement">冻结不是装饰项，而是迁移学习是否成立的核心证据。</div>
+        </div>
+        <p style="font-size:24px;line-height:1.45">仅训练分类头不足以适配病害细粒度差异；解冻尾部特征层后，模型显著超过 fc_only。</p>
+      </div>
+      <div class="list">
+        <div class="li">From Scratch：全模型训练，测试准确率 93.0%</div>
+        <div class="li">fc_only：冻结全部 backbone，仅训练分类头，测试准确率 89.0%</div>
+        <div class="li">fc_then_layer4：冻结前面 N 层，微调分类头和尾部特征层，最高 96.6%</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Engineering Structure</span><span class="page">06</span></div>
+    <div class="body">
+      <div>
+        <div class="kicker">PyTorch project style</div>
+        <h2 class="title">训练、评估、部署被拆成可解释模块</h2>
+      </div>
+      <div class="grid-4">
+        <div class="card"><h3>config.py</h3><p class="label">实验配置 / seed</p></div>
+        <div class="card"><h3>data.py</h3><p class="label">Transform / DataLoader</p></div>
+        <div class="card"><h3>models.py</h3><p class="label">Backbone / Freeze</p></div>
+        <div class="card"><h3>trainer.py</h3><p class="label">训练循环 / best model</p></div>
+        <div class="card"><h3>evaluator.py</h3><p class="label">报告 / 混淆矩阵</p></div>
+        <div class="card"><h3>gradcam.py</h3><p class="label">可解释性热力图</p></div>
+        <div class="card"><h3>train.py</h3><p class="label">训练入口</p></div>
+        <div class="card"><h3>app.py</h3><p class="label">Gradio Web Demo</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Experiment Matrix</span><span class="page">07</span></div>
+    <div class="body">
+      <div>
+        <div class="kicker">Six experiments</div>
+        <h2 class="title">MobileNetV3 在准确率、参数量和速度之间最均衡</h2>
+      </div>
+      <div class="grid-2" style="align-items:start">
+        <div class="table">
+          <div class="row head"><div>实验</div><div>骨干</div><div>冻结策略</div><div>Acc</div><div>参数</div></div>
+          <div class="row best"><div>MobileNetV3</div><div>small</div><div>fc_then_layer4</div><div>96.6%</div><div>1.53M</div></div>
+          <div class="row"><div>ResNet50</div><div>resnet50</div><div>fc_then_layer4</div><div>96.2%</div><div>23.53M</div></div>
+          <div class="row"><div>ResNet18 low LR</div><div>resnet18</div><div>fc_then_layer4</div><div>95.8%</div><div>11.18M</div></div>
+          <div class="row"><div>ResNet18</div><div>resnet18</div><div>fc_then_layer4</div><div>95.4%</div><div>11.18M</div></div>
+          <div class="row"><div>Scratch</div><div>resnet18</div><div>none</div><div>93.0%</div><div>11.18M</div></div>
+          <div class="row"><div>fc_only</div><div>resnet18</div><div>fc_only</div><div>89.0%</div><div>11.18M</div></div>
+        </div>
+        <div class="bars">
+          <div class="bar"><span>MobileNetV3</span><span class="track"><span class="fill" style="display:block;width:96.6%"></span></span><strong>96.6%</strong></div>
+          <div class="bar"><span>ResNet50</span><span class="track"><span class="fill" style="display:block;width:96.2%"></span></span><strong>96.2%</strong></div>
+          <div class="bar"><span>ResNet18 low LR</span><span class="track"><span class="fill" style="display:block;width:95.8%"></span></span><strong>95.8%</strong></div>
+          <div class="bar"><span>Scratch</span><span class="track"><span class="fill" style="display:block;width:93%;background:var(--grey-3)"></span></span><strong>93.0%</strong></div>
+          <div class="bar"><span>fc_only</span><span class="track"><span class="fill" style="display:block;width:89%;background:#444"></span></span><strong>89.0%</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Training Diagnostics</span><span class="page">08</span></div>
+    <div class="body">
+      <div>
+        <div class="kicker">Evidence, not decoration</div>
+        <h2 class="title">训练曲线和混淆矩阵共同支撑 96.6%</h2>
+      </div>
+      <div class="split-images">
+        <div class="image-frame"><img class="proof-img" src="images/08-training-curves.png" alt="training curves"></div>
+        <div class="image-frame"><img class="proof-img" src="images/08-confusion-matrix.png" alt="confusion matrix"></div>
+      </div>
+      <div class="footer-note">测试集中主要误差集中在纹理相近类别；整体 Macro-F1 约 96.5%，健康叶片类别 F1 达到 1.00。</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Explainability / Demo</span><span class="page">09</span></div>
+    <div class="body grid-2">
+      <div>
+        <div class="kicker">Grad-CAM + Gradio</div>
+        <h2 class="title">模型不仅给出答案，也能展示关注区域</h2>
+        <div class="list" style="margin-top:32px">
+          <div class="li">Grad-CAM 热力图验证模型关注叶片病害区域</div>
+          <div class="li">Gradio 支持上传叶片图，实时返回 Top-3 类别与置信度</div>
+          <div class="li">演示复用同一 checkpoint、类别映射和图像预处理</div>
+        </div>
+      </div>
+      <div class="image-frame tall"><img class="proof-img" src="images/09-gradcam.png" alt="grad cam"></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="chrome"><span>Takeaway</span><span class="page">10</span></div>
+    <div class="body" style="grid-template-rows:auto 1fr auto">
+      <div>
+        <div class="kicker">Defense close</div>
+        <h2 class="title">答辩时只抓一条主线：完整、可信、可展示</h2>
+      </div>
+      <div class="grid-4">
+        <div class="card dark"><div class="num small">达成</div><div class="label">Top-1 ≥ 90%</div></div>
+        <div class="card"><div class="num small">完整</div><div class="label">Train / Eval / Demo</div></div>
+        <div class="card"><div class="num small">清晰</div><div class="label">Modular PyTorch</div></div>
+        <div class="card"><div class="num small">加分</div><div class="label">3 Backbones + Gradio</div></div>
+      </div>
+      <div class="statement" style="max-width:82vw">该系统完成了番茄叶片病害识别从数据、模型、训练、评估到交互部署的完整计算机视觉工程闭环。</div>
+    </div>
+  </section>
+</main>
+<div class="nav" id="nav"></div>
+<div class="hint">← / → · wheel · Esc</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const deck=document.getElementById('deck');
+const nav=document.getElementById('nav');
+let index=0;
+slides.forEach((_,i)=>{const d=document.createElement('span');d.className='dot';d.onclick=()=>go(i);nav.appendChild(d)});
+function go(i, updateHash=true){
+  index=Math.max(0,Math.min(slides.length-1,i));
+  deck.style.transform=`translateX(${-index*100}vw)`;
+  [...nav.children].forEach((d,j)=>d.classList.toggle('active',j===index));
+  if(updateHash) history.replaceState(null,'',`#${index+1}`);
+}
+function fromHash(){
+  const raw=Number(location.hash.replace('#',''));
+  return Number.isFinite(raw)&&raw>0?raw-1:0;
+}
+window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(index+1);if(e.key==='ArrowLeft'||e.key==='PageUp')go(index-1);if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);if(e.key==='Escape')go(0)});
+let wheelLock=false;window.addEventListener('wheel',e=>{if(wheelLock)return;wheelLock=true;go(index+(e.deltaY>0?1:-1));setTimeout(()=>wheelLock=false,650)},{passive:true});
+window.addEventListener('hashchange',()=>go(fromHash(),false));
+go(fromHash(),false);
+</script>
+</body>
+</html>
