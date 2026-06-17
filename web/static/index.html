@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>番茄病害智能识别系统 · Tomato Disease AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <svg class="sidebar-logo" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" stroke="#e85d4a"/>
+                <circle cx="12" cy="12" r="5" stroke="#f5a623"/>
+                <line x1="12" y1="2" x2="12" y2="7" stroke="#e85d4a"/>
+                <line x1="12" y1="17" x2="12" y2="22" stroke="#e85d4a"/>
+                <line x1="2" y1="12" x2="7" y2="12" stroke="#e85d4a"/>
+                <line x1="17" y1="12" x2="22" y2="12" stroke="#e85d4a"/>
+            </svg>
+            <span class="sidebar-title">TomatoAI</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-page="predict">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                使用模型
+            </button>
+            <button class="nav-item" data-page="about">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                项目介绍
+            </button>
+            <button class="nav-item" data-page="model">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                </svg>
+                模型架构
+            </button>
+            <button class="nav-item" data-page="contributors">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                团队成员
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="footer-text">郑喻文 · 3250103102</span>
+            <span class="footer-text">人工智能基础(A) 课程大作业</span>
+        </div>
+    </aside>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+
+        <!-- Page: Predict -->
+        <section class="page active" id="page-predict">
+            <div class="page-header">
+                <h1>番茄病害智能诊断</h1>
+                <p>上传番茄叶片图像，AI 深度学习模型实时分析病害类型与置信度</p>
+            </div>
+
+            <div class="predict-layout">
+                <div class="upload-panel">
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="fileInput" accept="image/*" hidden />
+                        <div class="drop-content">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" class="drop-icon">
+                                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21,15 16,10 5,21"/>
+                            </svg>
+                            <p class="drop-text">拖拽图片到此处，或点击选择文件</p>
+                            <p class="drop-hint">支持 JPG / PNG / WebP，推荐 224×224 像素以上</p>
+                        </div>
+                        <img id="previewImage" class="preview-img hidden" alt="Preview" />
+                    </div>
+                    <button class="btn-primary" id="analyzeBtn" disabled>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        开始诊断
+                    </button>
+                    <button class="btn-secondary" id="clearBtn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        清除
+                    </button>
+
+                    <div class="disease-card hidden" id="diseaseCard">
+                        <h3 class="disease-title" id="diseaseTitle"></h3>
+                        <p class="disease-desc" id="diseaseDesc"></p>
+                        <h4>防治建议</h4>
+                        <ul class="treatment-list" id="treatmentList"></ul>
+                    </div>
+                </div>
+
+                <div class="results-panel" id="resultsPanel">
+                    <div class="results-placeholder" id="resultsPlaceholder">
+                        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                            <rect x="9" y="3" width="6" height="4" rx="1"/>
+                            <path d="M9 14l2 2 4-4"/>
+                        </svg>
+                        <p>诊断结果将在此显示</p>
+                    </div>
+                    <div class="results-content hidden" id="resultsContent">
+                        <div class="prediction-badge" id="predictionBadge">
+                            <span class="badge-label">诊断结果</span>
+                            <span class="badge-value" id="badgeValue"></span>
+                            <span class="badge-confidence" id="badgeConfidence"></span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="probChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="loading hidden" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>AI 正在分析中...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: About -->
+        <section class="page" id="page-about">
+            <div class="page-header">
+                <h1>番茄病害智能识别系统</h1>
+                <p>基于深度学习的智慧农业应用 — 项目背景、目标与技术路线<br>项目开源于：<a href="https://github.com/zywjkk/AIcourseproject" target="_blank" rel="noopener">github.com/zywjkk/AIcourseproject</a></p>
+            </div>
+            <div class="about-content">
+                <div class="about-card">
+                    <h3>项目背景</h3>
+                    <p>农业是国民经济的基础，作物病害的及时检测与准确识别是保障粮食安全的关键环节。传统方法依赖植保专家实地勘察和人工目测，耗时费力且依赖专家经验，难以大规模推广。随着深度学习特别是卷积神经网络（CNN）在图像识别领域取得突破性进展，基于计算机视觉的作物病害自动检测已成为智慧农业的重要应用方向。</p>
+                </div>
+                <div class="about-card">
+                    <h3>项目目标</h3>
+                    <p>基于卷积神经网络构建一个番茄叶片病害自动分类系统，能够对 <strong>10 类番茄叶片图像</strong>（9 种病害 + 健康）进行准确分类，模型在测试集上的 Top-1 准确率达到 <strong>97.4%</strong>。</p>
+                </div>
+                <div class="about-card">
+                    <h3>技术路线</h3>
+                    <ul>
+                        <li><strong>数据增强</strong>：随机水平翻转、随机旋转（±15°）、ImageNet 标准化</li>
+                        <li><strong>迁移学习</strong>：使用 ImageNet 预训练的 ResNet-18 作为骨干网络</li>
+                        <li><strong>两阶段训练</strong>：先冻结骨干微调分类头（Stage 1），再解冻深层联合微调（Stage 2）</li>
+                        <li><strong>可解释性</strong>：Grad-CAM 热力图可视化模型关注的叶片区域</li>
+                    </ul>
+                </div>
+                <div class="about-card">
+                    <h3>数据集</h3>
+                    <p>来源于 PlantVillage 公开数据集，共约 11,000 张番茄叶片图像，包含 10 个类别：细菌性斑点病、早疫病、晚疫病、叶霉病、斑枯病、二斑叶螨、靶斑病、黄化曲叶病毒病、花叶病毒病、健康叶片。按比例拆分为训练集、验证集和测试集。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Model -->
+        <section class="page" id="page-model">
+            <div class="page-header">
+                <h1>番茄病害智能识别系统 · 模型架构</h1>
+                <p>基于 PyTorch 框架，加载 ImageNet 预训练权重，采用工业级两阶段迁移学习策略（先冻结骨干微调分类头 → 再解冻深层联合微调），支持 ResNet-18/50 与 MobileNet-V3 多架构对比，配合 Grad-CAM 热力图实现模型决策可解释</p>
+            </div>
+            <div class="model-content">
+                <div class="model-card tinted">
+                    <h3>ResNet-18 迁移学习</h3>
+                    <table class="model-table">
+                        <tr><td>深度学习框架</td><td>PyTorch + torchvision</td></tr>
+                        <tr><td>架构</td><td>ResNet-18（ImageNet 预训练）</td></tr>
+                        <tr><td>训练策略</td><td>两阶段迁移学习：冻结骨干 → 解冻 layer4 联合微调</td></tr>
+                        <tr><td>Stage 1</td><td>5 epochs，lr=1e-3，仅训练分类头（5,130 参数）</td></tr>
+                        <tr><td>Stage 2</td><td>25 epochs，lr=1e-5，联合微调（8,398,858 参数）</td></tr>
+                        <tr><td>输入尺寸</td><td>224 × 224 像素，RGB 三通道</td></tr>
+                        <tr><td>总参数量</td><td>11,181,642</td></tr>
+                        <tr><td>优化器</td><td>Adam，weight_decay=0</td></tr>
+                        <tr><td>批次大小</td><td>32</td></tr>
+                    </table>
+                </div>
+                <div class="model-card tinted">
+                    <h3>测试集性能</h3>
+                    <table class="model-table">
+                        <tr><td>Top-1 准确率</td><td><strong>97.4%</strong></td></tr>
+                        <tr><td>Macro F1</td><td>0.974</td></tr>
+                        <tr><td>Weighted F1</td><td>0.974</td></tr>
+                        <tr><td>推理速度</td><td>0.69 ms / 张（CPU）</td></tr>
+                    </table>
+                </div>
+                <div class="model-card tinted">
+                    <h3>各类别分类报告</h3>
+                    <table class="model-table perclass-table">
+                        <thead><tr><th>类别</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>Support</th></tr></thead>
+                        <tbody>
+                            <tr><td>细菌性斑点病</td><td>0.965</td><td>1.000</td><td>0.982</td><td>55</td></tr>
+                            <tr><td>早疫病</td><td>0.906</td><td>1.000</td><td>0.950</td><td>48</td></tr>
+                            <tr><td>晚疫病</td><td>1.000</td><td>1.000</td><td>1.000</td><td>43</td></tr>
+                            <tr><td>叶霉病</td><td>1.000</td><td>0.964</td><td>0.981</td><td>55</td></tr>
+                            <tr><td>斑枯病</td><td>0.957</td><td>0.957</td><td>0.957</td><td>46</td></tr>
+                            <tr><td>二斑叶螨</td><td>0.960</td><td>0.960</td><td>0.960</td><td>50</td></tr>
+                            <tr><td>靶斑病</td><td>0.957</td><td>0.900</td><td>0.928</td><td>50</td></tr>
+                            <tr><td>黄化曲叶病毒病</td><td>1.000</td><td>0.980</td><td>0.990</td><td>50</td></tr>
+                            <tr><td>花叶病毒病</td><td>1.000</td><td>0.983</td><td>0.991</td><td>58</td></tr>
+                            <tr><td>健康叶片</td><td>1.000</td><td>1.000</td><td>1.000</td><td>45</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="model-card tinted">
+                    <h3>混淆矩阵</h3>
+                    <img src="/exp-img/confusion_matrix.png" alt="混淆矩阵" class="model-img" loading="lazy" />
+                </div>
+
+                <div class="model-card tinted">
+                    <h3>Grad-CAM 可解释性</h3>
+                    <p class="model-note">Grad-CAM 热力图展示模型在分类时关注的叶片区域，红色越深表示该区域对分类决策的影响越大。</p>
+                    <img src="/exp-img/grad_cam.png" alt="Grad-CAM 热力图" class="model-img" loading="lazy" />
+                </div>
+
+                <div class="model-card chart-card tinted">
+                    <h3>训练过程</h3>
+                    <div class="chart-row">
+                        <div class="chart-box">
+                            <h4>Loss 曲线</h4>
+                            <canvas id="lossChart"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <h4>Accuracy 曲线</h4>
+                            <canvas id="accChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Contributors -->
+        <section class="page" id="page-contributors">
+            <div class="page-header">
+                <h1>团队成员 / 贡献者</h1>
+                <p>浙江大学人工智能基础（A）小组作业</p>
+            </div>
+            <div class="about-content">
+                <table class="contrib-table">
+                    <thead>
+                        <tr><th>成员角色</th><th>负责内容</th><th>对应产出物</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="role-cell"><strong>组长</strong><br><span class="role-name">郑喻文</span></td>
+                            <td><strong>项目统筹与实验设计</strong>：确定选题需求、实验矩阵、冻结策略、最终交付检查。</td>
+                            <td>README、实验报告、<code>experiment_matrix.json</code></td>
+                        </tr>
+                        <tr>
+                            <td class="role-cell"><strong>方鑫</strong></td>
+                            <td><strong>数据与训练流程</strong>：数据集整理、Dataset/DataLoader 构建、数据增强、训练循环编写。</td>
+                            <td><code>src/data.py</code>、<code>src/trainer.py</code>、<code>train.py</code></td>
+                        </tr>
+                        <tr>
+                            <td class="role-cell"><strong>王安卓</strong></td>
+                            <td><strong>模型与迁移学习</strong>：CNN/ResNet/MobileNet 架构搭建、预训练权重加载、冻结与微调策略实现。</td>
+                            <td><code>src/models.py</code>、<code>src/config.py</code></td>
+                        </tr>
+                        <tr>
+                            <td class="role-cell"><strong>李军</strong></td>
+                            <td><strong>评估与可视化</strong>：测试集评估、分类报告、混淆矩阵、Loss/Accuracy 曲线、柱状图生成。</td>
+                            <td><code>src/evaluator.py</code>、<code>summarize_experiments.py</code></td>
+                        </tr>
+                        <tr>
+                            <td class="role-cell"><strong>王骏扬</strong></td>
+                            <td><strong>演示与答辩材料</strong>：搭建 Gradio Web 演示界面、实现 Grad-CAM、PPT 制作及演示验证记录。</td>
+                            <td><code>app.py</code>、<code>src/gradcam.py</code>、答辩 PPT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/static/chart.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

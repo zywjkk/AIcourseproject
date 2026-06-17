@@ -1,0 +1,25 @@
+{
+  "required_baseline": [
+    "resnet18_transfer_fc_then_layer4"
+  ],
+  "required_transfer_learning_comparison": [
+    "resnet18_scratch",
+    "resnet18_transfer_fc_only",
+    "resnet18_transfer_fc_then_layer4"
+  ],
+  "required_hyperparameter_comparison": [
+    "resnet18_transfer_fc_then_layer4",
+    "resnet18_transfer_lr_low"
+  ],
+  "advanced_backbone_comparison": [
+    "resnet18_transfer_fc_then_layer4",
+    "resnet50_transfer_fc_then_layer4",
+    "mobilenet_v3_transfer_fc_then_features_tail"
+  ],
+  "notes": [
+    "Run required_baseline first and confirm test Top-1 accuracy >= 90%.",
+    "Use transfer_learning_comparison to satisfy From Scratch vs transfer learning and freezing strategy requirements.",
+    "Use hyperparameter_comparison to satisfy the report requirement for at least two learning rates.",
+    "Use advanced_backbone_comparison to pursue the advanced challenge score."
+  ]
+}

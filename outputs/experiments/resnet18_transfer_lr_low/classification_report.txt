@@ -1,0 +1,16 @@
+                                               precision    recall  f1-score   support
+
+                      Tomato___Bacterial_spot       0.98      1.00      0.99        55
+                        Tomato___Early_blight       0.87      0.94      0.90        48
+                         Tomato___Late_blight       1.00      0.98      0.99        43
+                           Tomato___Leaf_Mold       0.93      0.96      0.95        55
+                  Tomato___Septoria_leaf_spot       0.93      0.89      0.91        46
+Tomato___Spider_mites Two-spotted_spider_mite       0.94      0.96      0.95        50
+                         Tomato___Target_Spot       0.96      0.92      0.94        50
+       Tomato___Tomato_Yellow_Leaf_Curl_Virus       0.98      0.98      0.98        50
+                 Tomato___Tomato_mosaic_virus       1.00      0.95      0.97        58
+                             Tomato___healthy       1.00      1.00      1.00        45
+
+                                     accuracy                           0.96       500
+                                    macro avg       0.96      0.96      0.96       500
+                                 weighted avg       0.96      0.96      0.96       500
